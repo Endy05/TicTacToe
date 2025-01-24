@@ -27,22 +27,20 @@ function handleCellClick(event) {
 
     if (cell.classList.contains('cell') && cell.textContent === '') {
         const index = cell.dataset.index;
-        Gameboard[index] = 'X';
-        cell.textContent = 'X';
+        Gameboard[index] = playerChoice;
+        cell.textContent = playerChoice;
 
-        if (checkWinner('X')) {
-            alert('Player X wins!');
-            resetGame();
+        if (checkWinner(playerChoice)) {
+            announcementOfResults('You wins!');
             return;
         }
 
         if (!Gameboard.includes('')) {
-            alert('Draw!');
-            resetGame();
+            announcementOfResults('Draw!');
             return;
         }
 
-        aiMove(); // Хід бота
+        aiMove(aiChoice); // Хід бота
     }
 }
 
@@ -53,14 +51,13 @@ function aiMove() {
 
     if (emptyCells.length > 0) {
         const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        Gameboard[randomIndex] = 'O';
+        Gameboard[randomIndex] = aiChoice;
 
         const cell = document.querySelector(`.cell[data-index='${randomIndex}']`);
-        cell.textContent = 'O';
+        cell.textContent = aiChoice;
 
-        if (checkWinner('O')) {
-            alert('Player O (AI) wins!');
-            resetGame();
+        if (checkWinner(aiChoice)) {
+            announcementOfResults('AI wins!');
         }
     }
 }
@@ -90,6 +87,60 @@ function resetGame() {
         cell.textContent = '';
     });
 }
+
+function announcementOfResults(text) {
+    const hidden = document.querySelector('.hidden');
+    const hiddenText = document.querySelector('.hidden__text');
+    hidden.style.display = 'flex';
+    hiddenText.textContent = text;
+    document.querySelector('.restart').addEventListener('click', ()=> {
+        resetGame();
+        hidden.style.display = 'none';
+    });
+    
+}
+
+function error() {
+    const error = document.querySelector('.error-message');
+    error.style.display = 'flex';
+    setTimeout(() => {
+        error.style.display = 'none';
+    }, 3000);
+
+}
+
+
+
+document.querySelector('.replay').addEventListener('click', resetGame);
+
+const xBtn = document.querySelector('.x-btn');
+const oBtn = document.querySelector('.o-btn');
+let playerChoice = 'X';
+let aiChoice = 'O';
+
+xBtn.addEventListener('click', () => {
+    if (Gameboard.every(field => field === '')) {
+        xBtn.classList.add('choice');
+        oBtn.classList.remove('choice');
+        playerChoice = 'X';
+        aiChoice = 'O';
+    }
+    else {
+        error();
+    }
+});
+
+oBtn.addEventListener('click', () => {
+    if (Gameboard.every(field => field === '')) {
+        xBtn.classList.remove('choice');
+        oBtn.classList.add('choice');
+        playerChoice = 'O';
+        aiChoice = 'X';
+    }
+    else {
+        error();
+    }
+});
 
 // Ініціалізація гри
 createGameboard();
